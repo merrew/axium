@@ -1,0 +1,39 @@
+Стандартные функции
+x²	x^{2}
+√x	\sqrt{x}
+ⁿ√x	\sqrt[n]{x}
+|x|	\left| (x) \\right|
+a/b	\frac{a}{b}
+ln(x)	\ln(x)
+ logₙx	\log_{n}(x)
+logₙᵏx	\log_{n}^{k}(x) или (\\log_{n}(x))^{k}
+lg(x)	\log_{10}(x)
+
+Константы
+π	\pi
+e	\e
+exp(x)	\e^{x}
+
+Тригонометрические функции
+sin(x)	\sin(x)
+cos(x)	\cos(x)
+tan(x)	\tan(x)
+cot(x)	\cot(x)
+
+arcsin(x)	\arcsin(x)
+arccos(x)	\arccos(x)
+arctan(x)	\arctan(x)
+arccot(x)	\textrm{arccot}(x)
+
+Гиперболические функции
+sinh(x)	\sinh(x)
+cosh(x)	\cosh(x)
+tanh(x)	\tanh(x)
+coth(x)	\coth(x)
+
+argsinh(x)	\textrm{argsinh}(x)
+argcosh(x)	\textrm{argcosh}(x)
+argtanh(x)	\textrm{argtanh}(x)
+
+Запись степени для тригонометрических и гиперболических функций:
+sinᵏ(x)	\sin^{k}(x) или \(sin(x))^{k}

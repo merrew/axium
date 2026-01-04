@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.23)
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
+
+jkqtplotter_add_jkqtcommmon_test(JKQTPStringTools_test)
+jkqtplotter_add_jkqtcommmon_test(JKQTPCSSParser_test)
+jkqtplotter_add_jkqtcommmon_test(JKQTPDataCache_test)
+jkqtplotter_add_jkqtcommmon_test(JKQTPDataCache_benchmark)
+

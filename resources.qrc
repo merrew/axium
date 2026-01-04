@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/icon_prefix">
+        <file>icon.png</file>
+        <file>delete.png</file>
+    </qresource>
+    <qresource prefix="/fonts">
+        <file>Ubuntu/Ubuntu-Light.ttf</file>
+        <file>Math/STIXTwoMath-Regular.ttf</file>
+    </qresource>
+    <qresource prefix="/"/>
+    <qresource prefix="/shaders">
+        <file>vertex.vert</file>
+        <file>fragment.frag</file>
+    </qresource>
+</RCC>
