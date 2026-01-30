@@ -111,6 +111,12 @@ LatexLexer::Token LatexLexer::Lexer::read_variable()
     std::string word;
     // Переменная
     while (isalnum((unsigned char)look())) word += get();
+    if (word == "e")
+    {
+        return {LatexLexer::TokenType::Const, "\\" + word};
+    }
+    if (word != "x" && word != "y")
+        throw(std::invalid_argument("Lexer Error: Only 'x' and 'y' variables allowed"));
     return {LatexLexer::TokenType::Variable, word};
 }
 

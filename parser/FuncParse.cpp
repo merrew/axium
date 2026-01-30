@@ -95,9 +95,12 @@ void FuncParse::setExpr(const std::string& expr)
         ast = parser.parse();
 
         need_to_rebuild_AST = false;
+
+        correct = true;
     }
     catch (const std::exception& e)
     {
+        correct = false;
         std::cerr << "FuncParse ERROR: " << e.what()
         << " — fallback to y = 0\n";
 

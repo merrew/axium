@@ -19,6 +19,8 @@ public:
     std::optional<double> eval(const std::unordered_map<std::string, double>& vars);
 
     FuncType type;
+
+    bool correct = false;
 private:
     bool need_to_rebuild_AST = true;
     Parser parser;

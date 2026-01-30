@@ -25,6 +25,35 @@ struct seg { int offset; int count;
         : offset(_offset), count(_count) {}
 };
 
+// Экстремум
+struct Extremum {
+    double x; double y; bool is_max;
+};
+// Точки разрыва
+enum class BreakPointType
+{
+    FirstType,
+    SecondType
+};
+// Точки разрыва
+struct BreakPoint
+{
+    double x;
+    BreakPointType type;
+};
+// Промежутки монотонности
+enum class IntervalMonoType
+{
+    Increasing,
+    Decreasing
+};
+struct IntervalMono
+{
+    double start;
+    double end;
+    IntervalMonoType type;
+};
+
 class FuncGL : protected QOpenGLFunctions_3_3_Core
 {
 public:
@@ -48,6 +77,46 @@ public:
     void init(QPointF offset);
     void draw(QOpenGLShaderProgram& shader);
 
+    // Анализ
+    bool eval(double x, double& y, double h=1e-3); // безопасное вычисление функции
+    bool d_dx (double x, double& d, double h); // производная центральными разностями
+    bool d2_dx2 (double x, double& d, double h); // 2 производная конечными разностями
+    // Экстремумы
+    std::vector<Extremum> findExtrema(
+        double a,
+        double b,
+        std::function<bool(double, double&, double)> eval,
+        std::function<bool(double, double&, double)> d_dx
+        );
+    // Пересечения с осями
+    std::vector<QPointF> findNulls(
+        double a,
+        double b,
+        std::function<bool(double, double&, double)> eval,
+        std::function<bool(double, double&, double)> d_dx
+        );
+    // Точки разрыва
+    std::vector<BreakPoint> findBreakPoints(
+        double a,
+        double b,
+        std::function<bool(double, double&, double)> eval,
+        std::function<bool(double, double&, double)> d_dx
+        );
+    // Промежутки монотонности
+    std::vector<IntervalMono> findIntervalsMono(
+        double a, double b,
+        std::function<bool(double, double&, double)> eval,
+        std::function<bool(double, double&, double)> d_dx);
+    // Область определения
+    std::vector<std::pair<double, double>> find_D(
+        double a, double b,
+        std::function<bool(double, double&, double)> eval,
+        std::function<bool(double, double&, double)> d_dx);
+    // Область значения
+    std::vector<std::pair<double, double>> find_E(
+        double a, double b,
+        std::function<bool(double, double&, double)> eval,
+        std::function<bool(double, double&, double)> d_dx);
     ~FuncGL();
 
 private:
