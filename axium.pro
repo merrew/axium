@@ -16,6 +16,7 @@ SOURCES += \
     Graph_function.cpp \
     Grid.cpp \
     OpenGLContainer.cpp \
+    analysispanel.cpp \
     functions.cpp \
     main.cpp \
     mathoperators.cpp \
@@ -32,6 +33,7 @@ HEADERS += \
     Grid.h \
     OpenGLContainer.h \
     Widget.h \
+    analysispanel.h \
     functions.h \
     mathoperators.h \
     panel.h \

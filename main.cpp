@@ -3,6 +3,7 @@
 #include "Fonts.h"
 #include "panel.h"
 #include "toolspanel.h"
+#include "analysispanel.h"
 #include "Graph_function.h"
 #include "OpenGLContainer.h"
 #include <QSurfaceFormat>
@@ -38,7 +39,7 @@ int main(int argc, char *argv[])
     window.addDockWidget(Qt::LeftDockWidgetArea, tool_panel);
 
     // Панель анализа
-    Panel *analysis_panel = new Panel("АНАЛИЗ", &window, Qt::RightDockWidgetArea);
+    Panel *analysis_panel = new AnalysisPanel(&window);
     window.addDockWidget(Qt::RightDockWidgetArea, analysis_panel);
 
     // Задаём стартовую ширину панелей 300 пикселей

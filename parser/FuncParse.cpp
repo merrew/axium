@@ -124,7 +124,7 @@ std::optional<double> FuncParse::eval(
     {
         std::cerr << "FuncParse::eval ERROR: "
                   << e.what() << " — return 0\n";
-        return 0.0;   // безопасный откат
+        return 0.0;
     }
 }
 

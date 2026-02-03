@@ -488,7 +488,7 @@ double FunctionNode::evaluate(const std::unordered_map<std::string, double>& var
     if (f == "\\Abs")
         return std::abs(args[0]->evaluate(vars));
 
-    throw std::invalid_argument("Parser Error: Unknown function: " + f);
+    return 0;
 }
 
 

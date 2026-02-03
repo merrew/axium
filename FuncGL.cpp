@@ -56,7 +56,7 @@ void FuncGL::updateVertices(QPointF offset)
         x1 = x_end + std::abs(offset.y());
     }
 
-
+/*
     if (f.correct)
     {
         auto ex = findExtrema(x0, x1,
@@ -123,6 +123,7 @@ void FuncGL::updateVertices(QPointF offset)
                  return this->d2_dx2(x, d, h);
              });
 
+
         for (auto& e : ex)
                 qDebug() << (e.is_max ? "Максимум: " : "Минимум: ") << "(" << e.x << ";" << e.y << ")\n";
         for (auto& e : nl)
@@ -141,11 +142,18 @@ void FuncGL::updateVertices(QPointF offset)
             qDebug() << (e.is_max ? "Восходящая точка перегиба: " : "Нисходящая точка перегиба: ") << "(" << e.x << ";" << e.y << ")\n";
         for (auto& e : crit2_intervals)
             qDebug() << (e.type == IntervalMonoType::Increasing ? "Вогнутость: (" : "Выпуклость: (") << e.start << "; " << e.end << ")\n";
+
+        qDebug() << "Интеграл на [" << x0 << ";" << x1 << "]" << "методом прямоугольников = " << rectangle_integrate(x0, x1);
+        qDebug() << "Интеграл на [" << x0 << ";" << x1 << "]" << "методом трапеций = " << trapezoid_integrate(x0, x1);
+        qDebug() << "Интеграл на [" << x0 << ";" << x1 << "]" << "методом Симпсона = " << simpson_integrate(x0, x1);
+        qDebug() << "Интеграл на [" << x0 << ";" << x1 << "]" << "методом Гаусса = " << gauss_composite_integrate(x0, x1);
+        qDebug() << "Длина дуги на [" << x0 << ";" << x1 << "]" << " = " << curve_length(x0, x1);
+
         qDebug() << "\n";
 
     }
 
-
+*/
     const float h_min = 0.001f;
     const float h_max = 0.01f;
     const float slope_threshold = 0.1f;
@@ -724,6 +732,162 @@ std::vector<std::pair<double, double>> FuncGL::find_E(
     return merged;
 }
 
+double FuncGL::rectangle_integrate(double a, double b)
+{
+    int n = 1000;
+    double h = (b - a) / n;
+    double I = 0.0;
+    for (int i = 0; i < n; ++i)
+    {
+        double x = a + (i + 0.5) * h;
+        double y;
+
+        if (!eval(x, y) || std::isnan(y))
+            continue;
+
+        I += y;
+    }
+    return I * h;
+}
+
+double FuncGL::trapezoid_integrate(double a, double b)
+{
+    int n = 1000;
+    double h = (b - a) / n;
+    double I = 0.0;
+    for (int i = 0; i < n; ++i)
+    {
+        double x = a + i * h;
+        double x1 = a + (i + 1) * h;
+        double y, y1;
+
+        if (!eval(x, y) || std::isnan(y) || !eval(x1, y1) || std::isnan(y1))
+            continue;
+
+        I += (y1 + y) * h / 2.0;
+    }
+    return I;
+}
+
+double FuncGL::simpson_integrate(double a, double b)
+{
+    int n = 1000;
+    if (n % 2 != 0) ++n;
+
+    double h = (b - a) / n;
+
+    double x = a;
+    double x1 = b;
+    double y, y1;
+
+    while (!eval(x, y) || std::isnan(y))
+    {
+        x += h / 10.0;
+    }
+    while (!eval(x1, y1) || std::isnan(y1))
+    {
+        x1 += h / 10.0;
+    }
+
+    double I = y + y1;
+    for (int i = 1; i < n - 1; ++i)
+    {
+        double x = a + i * h;
+        double y;
+        if (!eval(x, y) || std::isnan(y))
+            continue;
+        I += (i % 2 == 0 ? 2 : 4) * y;
+    }
+    return I * h / 3.0;
+}
+
+double FuncGL::gauss_composite_integrate(double a, double b)
+{
+    int segments =  100;
+    double h = (b - a) / segments;
+    double result = 0.0;
+
+    for (int i = 0; i < segments; ++i)
+    {
+        double left  = a + i * h;
+        double right = left + h;
+
+        double part = gauss_integrate(left, right);
+        if (std::isnan(part))
+            return std::numeric_limits<double>::quiet_NaN();
+
+        result += part;
+    }
+
+    return result;
+}
+
+double FuncGL::gauss_integrate(double a, double b)
+{
+    const int n = 5;
+    double x[n] = {1.0/3.0*sqrt(5.0-2*sqrt(10.0/7)), 0.0, -1.0/3.0*sqrt(5.0-2*sqrt(10.0/7)), 1.0/3.0*sqrt(5.0+2*sqrt(10.0/7)), -1.0/3.0*sqrt(5.0+2*sqrt(10.0/7))};
+    double w[n] = {(322.0+13*sqrt(70))/900.0, 128.0/225.0, (322.0+13*sqrt(70))/900.0, (322.0-13*sqrt(70))/900.0, (322.0-13*sqrt(70))/900.0};
+    double c1 = (b - a)/2.0;
+    double c2 = (b + a)/2.0;
+    double I = 0.0;
+    for (int i = 0; i < n; ++i)
+    {
+        double xi = c1 * x[i] + c2;
+        double y; if (!eval(xi, y) || std::isnan(y))
+        { continue; }
+        I += w[i] * y;
+    }
+    I *= c1;
+
+    return I;
+}
+
+double FuncGL::arc(double x)
+{
+    const double h = 1e-5;
+
+    double y1, y2;
+    if (!eval(x + h, y1) || !eval(x - h, y2))
+        return std::numeric_limits<double>::quiet_NaN();
+
+    double dydx = (y1 - y2) / (2.0 * h);
+    return std::sqrt(1.0 + dydx * dydx);
+}
+double FuncGL::curve_length(double a, double b)
+{
+    int N = 1000;
+    double h = (b-a)/N;
+
+    double L = 0.0;
+    for (int i = 0; i < N; ++i)
+    {
+        double left  = a + i * h;
+        double right = left + h;
+
+        // Интегрирование Гауссом
+        double I = 0.0;
+        const int n = 5;
+        double x[n] = {1.0/3.0*sqrt(5.0-2*sqrt(10.0/7)), 0.0, -1.0/3.0*sqrt(5.0-2*sqrt(10.0/7)), 1.0/3.0*sqrt(5.0+2*sqrt(10.0/7)), -1.0/3.0*sqrt(5.0+2*sqrt(10.0/7))};
+        double w[n] = {(322.0+13*sqrt(70))/900.0, 128.0/225.0, (322.0+13*sqrt(70))/900.0, (322.0-13*sqrt(70))/900.0, (322.0-13*sqrt(70))/900.0};
+        double c1 = (right - left)/2.0;
+        double c2 = (right + left)/2.0;
+        for (int j = 0; j < n; ++j)
+        {
+            double xj = c1 * x[j] + c2;
+            double y = arc(xj);
+            if (std::isnan(y))
+                { continue; }
+            I += w[j] * y;
+        }
+        I *= c1;
+
+        if (std::isnan(I))
+            return std::numeric_limits<double>::quiet_NaN();
+
+        L += I;
+    }
+    return L;
+}
 
 FuncGL::~FuncGL()
 {

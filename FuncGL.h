@@ -117,6 +117,20 @@ public:
         double a, double b,
         std::function<bool(double, double&, double)> eval,
         std::function<bool(double, double&, double)> d_dx);
+    // Интегрирования
+    // метод прямоугольников
+    double rectangle_integrate(double a, double b);
+    // метод трапеций
+    double trapezoid_integrate(double a, double b);
+    // метод Симпсона
+    double simpson_integrate(double a, double b);
+    // метод Гаусса
+    double gauss_integrate(double a, double b);
+    double gauss_composite_integrate(double a, double b);
+    // длина кривой
+    double arc(double x);
+    double curve_length(double a, double b);
+
     ~FuncGL();
 
 private:
