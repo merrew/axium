@@ -102,7 +102,7 @@ void FuncParse::setExpr(const std::string& expr)
     {
         correct = false;
         std::cerr << "FuncParse ERROR: " << e.what()
-        << " — fallback to y = 0\n";
+                  << " — fallback to y = 0\n";
 
         // Если ошибка — строим AST = константа 0
         ast = std::make_unique<NumberNode>(0.0);

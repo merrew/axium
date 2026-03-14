@@ -7,10 +7,10 @@ CircleButton::CircleButton(QWidget* parent)
     setFixedSize(15, 15);
     setStyleSheet("QPushButton {"
                   "background:" + lightgray + "; "
-                  "border: none;}"
-                  "QPushButton:hover {"
-                  "background-color: " + blue_hover + ";"
-                  "}");
+                                "border: none;}"
+                                "QPushButton:hover {"
+                                "background-color: " + blue_hover + ";"
+                                 "}");
 }
 
 void CircleButton::SetActive(bool on)
@@ -62,10 +62,10 @@ Page::Page(const QStringList &operators, QWidget* parent)
         b->setMinimumWidth(60);
         b->setStyleSheet("QPushButton {font: bold 16px; "
                          "color: " + white + ";"
-                         "font-family: " + MathFont + "; "
-                         "background: " + light_lightgray + "; "
-                         "border-radius: 10px;}"
-                         "QPushButton:hover {background: " + blue + ";}"); // цвет при наведении мыши
+                                   "font-family: " + MathFont + "; "
+                                      "background: " + light_lightgray + "; "
+                                             "border-radius: 10px;}"
+                                             "QPushButton:hover {background: " + blue + ";}"); // цвет при наведении мыши
 
         // При нажатии на кнопку генерируется сигнал operatorClicked(name)
         connect(b, &QPushButton::clicked, this, [this, name]() { emit operatorClicked(name); });

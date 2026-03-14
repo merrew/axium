@@ -33,10 +33,10 @@ public:
     explicit Functions(QWidget* parent=nullptr, int ind=0);
 
 signals:
-   void needToDelete();
-   void clicked(Functions* self);
-   void functionChanged(const QString& newText);
-   void colorFunctionChanged(QColor newColor);
+    void needToDelete();
+    void clicked(Functions* self);
+    void functionChanged(const QString& newText);
+    void colorFunctionChanged(QColor newColor);
 };
 
 

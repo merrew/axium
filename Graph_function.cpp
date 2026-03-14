@@ -250,6 +250,7 @@ bool Graph_function::findPoint(const QPointF& mousePos, QPointF& screenPos, doub
             pointColor = func->color;
 
             func->width = 5;
+            emit functionSelected(func.get());
             find = true;
         }
     }

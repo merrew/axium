@@ -35,7 +35,7 @@ ToolsPanel::ToolsPanel(QMainWindow* window):  Panel("ФУНКЦИИ", window, Qt
                 {"ⁿ√x",     {"\\sqrt[]", "{", "}"}},
                 {"|x|",     {"", "\\left| ( ", " ) \\right|"}},
                 {"a/b",     {"\\frac", "{", "}{}"}},
-                 {"π",      {"\\pi", "", ""}},
+                {"π",      {"\\pi", "", ""}},
                 {"e",       {"e", "", ""}},
                 {"ln",      {"\\ln", "(", ")"}},
                 {"logₙ",     {"\\log_{}", "(", ")"}},
@@ -72,7 +72,7 @@ ToolsPanel::ToolsPanel(QMainWindow* window):  Panel("ФУНКЦИИ", window, Qt
                 {
                     auto mathInfo = latexOps[op];
                     latex_text.replace(active_Func->selectionStartPos, active_Func->selectionLength, mathInfo.latex_text + mathInfo.begin_symb +
-                                                                        active_Func->selectionText + mathInfo.end_symb);
+                                                                                                         active_Func->selectionText + mathInfo.end_symb);
 
                     active_Func->inputField->setText(latex_text);
                 }
@@ -132,13 +132,13 @@ ToolsPanel::ToolsPanel(QMainWindow* window):  Panel("ФУНКЦИИ", window, Qt
     addButton->setStyleSheet(
         "QPushButton {"
         "  background-color: " + blue + ";"
-        "  color: white;"
-        "  font: 40px " + GlobalFont + ";"
-        "  border-radius: 27px;"
-        "}"
-        "QPushButton:hover {"
-        "  background-color: " + blue_hover + ";"
-        "}"
+                 "  color: white;"
+                 "  font: 35px " + GlobalBoldFont + ";"
+                           "  border-radius: 27px;"
+                           "}"
+                           "QPushButton:hover {"
+                           "  background-color: " + blue_hover + ";"
+                       "}"
         );
     connect(addButton, &QPushButton::clicked, this, &ToolsPanel::AddFunc);
     addButtonLayout->addWidget(addButton, Qt::AlignHCenter);

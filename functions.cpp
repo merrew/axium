@@ -24,7 +24,7 @@ Functions::Functions(QWidget* parent, int ind): QWidget(parent), id(ind)
                   "}"
                   "QPushButton:hover {"
                   "background-color: " + green + ";"
-                       "}"
+                  "}"
         );
     // Метка
     // !
@@ -34,7 +34,7 @@ Functions::Functions(QWidget* parent, int ind): QWidget(parent), id(ind)
     // !
     //QLabel* funcLabel = new QLabel("f(x) = sin(x)", funcLabelContainer);
     //funcLabel->setStyleSheet("color: " + white + "; font: 20px; font-family: " + MathFont + "; "
-      //                       "border: 2px solid " +  lightgray + ";");
+    //                       "border: 2px solid " +  lightgray + ";");
 
     funcLabelLay->addWidget(colorBtn);
     funcLabelLay->addWidget(funcLabel);
@@ -43,12 +43,12 @@ Functions::Functions(QWidget* parent, int ind): QWidget(parent), id(ind)
 
     // Подключаем кнопку к QLabelDialog
     QObject::connect(colorBtn, &QPushButton::clicked, [this, colorBtn, funcLabelContainer]()
-    {
-        QColorDialog dlg(funcLabelContainer);
-        dlg.setWindowTitle("Выберите цвет функции");
+                     {
+                         QColorDialog dlg(funcLabelContainer);
+                         dlg.setWindowTitle("Выберите цвет функции");
 
-        // Настраиваем палитру окна диалога
-        dlg.setStyleSheet(QString(R"(
+                         // Настраиваем палитру окна диалога
+                         dlg.setStyleSheet(QString(R"(
 
             QColorDialog {
                 background-color: )" + gray + R"(;
@@ -71,25 +71,25 @@ Functions::Functions(QWidget* parent, int ind): QWidget(parent), id(ind)
             }
         )"));
 
-        if (dlg.exec() == QDialog::Accepted) {
-        QColor newColor = dlg.selectedColor();
-        if (newColor.isValid()) {
-            colorBtn->setStyleSheet(
-                "QPushButton {"
-                "border-radius: 7px;"
-                "background-color: " + lightgray + ";"
-                              "border: 2px solid " + newColor.name() + ";"
-                          "}"
-                          "QPushButton:hover {"
-                          "background-color: " + newColor.name() + ";"
-                          "}"
-                );
-            this->Color = newColor;
-            // смена цвета при отрисовке
-            emit colorFunctionChanged(newColor);
-        }
-        }
-    });
+                         if (dlg.exec() == QDialog::Accepted) {
+                             QColor newColor = dlg.selectedColor();
+                             if (newColor.isValid()) {
+                                 colorBtn->setStyleSheet(
+                                     "QPushButton {"
+                                     "border-radius: 7px;"
+                                     "background-color: " + lightgray + ";"
+                                                   "border: 2px solid " + newColor.name() + ";"
+                                                         "}"
+                                                         "QPushButton:hover {"
+                                                         "background-color: " + newColor.name() + ";"
+                                                         "}"
+                                     );
+                                 this->Color = newColor;
+                                 // смена цвета при отрисовке
+                                 emit colorFunctionChanged(newColor);
+                             }
+                         }
+                     });
 
     // Кнопка удаления функции
     QPushButton* delBtn = new QPushButton(funcLabelContainer);
@@ -101,11 +101,11 @@ Functions::Functions(QWidget* parent, int ind): QWidget(parent), id(ind)
         "border-radius: 7px;"
         "background-color: " + lightgray + ";"
                       "border: 2px solid " + lightgray + ";"
-                  "}"
-                  "QPushButton:hover {"
-                  "background-color: " + gray + ";"
+                      "}"
+                      "QPushButton:hover {"
+                      "background-color: " + gray + ";"
                  "border: 2px solid " + gray + ";"
-                  "}"
+                 "}"
         );
     // При нажатии на кнопку генерируется сигнал needToDelete(id)
     connect(delBtn, &QPushButton::clicked, this, [this]() { emit needToDelete(); });

@@ -61,13 +61,13 @@ Panel::Panel(QString text, QMainWindow *parent, Qt::DockWidgetArea area)
     QScrollBar:vertical {
         border: none;
         background: )" + light_lightgray + R"(;
-        width: 10px;
-        border-radius: 5px;
+        width: 5px;
+        border-radius: 2px;
     }
     QScrollBar::handle:vertical {
         background: )" + blue + R"(;
         min-height: 20px;
-        border-radius: 5px;
+        border-radius: 2px;
     }
     QScrollBar::handle:vertical:hover {
         background: )" + blue_hover + R"(;

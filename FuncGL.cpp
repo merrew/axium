@@ -56,7 +56,7 @@ void FuncGL::updateVertices(QPointF offset)
         x1 = x_end + std::abs(offset.y());
     }
 
-/*
+    /*
     if (f.correct)
     {
         auto ex = findExtrema(x0, x1,
@@ -555,7 +555,7 @@ std::vector<IntervalMono> FuncGL::findIntervalsMono(
         std::unique(critical.begin(), critical.end(),
                     [&](double x1, double x2)
                     {
-            return std::fabs(x1 - x2) < (b - a) / 1000;
+                        return std::fabs(x1 - x2) < (b - a) / 1000;
                     }),
         critical.end()
         );
@@ -876,7 +876,7 @@ double FuncGL::curve_length(double a, double b)
             double xj = c1 * x[j] + c2;
             double y = arc(xj);
             if (std::isnan(y))
-                { continue; }
+            { continue; }
             I += w[j] * y;
         }
         I *= c1;

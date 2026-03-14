@@ -16,7 +16,7 @@ void OpenGLContainer::resizeEvent(QResizeEvent* event)
     QSize oldSize = event->oldSize();
     double ratioW = (double)newSize.width() / oldSize.width();
     double ratioH = (double)newSize.height() / oldSize.height();
-   // if (ratioW == 1.0 || ratioH == 1.0) return;
+    // if (ratioW == 1.0 || ratioH == 1.0) return;
     double value = (ratioW + ratioH) / 2.0;
     graph_f->resizeFont(value);
 }

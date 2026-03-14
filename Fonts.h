@@ -4,6 +4,7 @@
 #include <QApplication>
 
 extern QString GlobalFont;
+extern QString GlobalBoldFont;
 extern QString MathFont;
 void loadFonts();
 

@@ -36,8 +36,8 @@ signals:
     void updateFunc(int index, const QString& expr);
     void updateFuncColor(int index, const QColor& color);
     void removeFunc(int index);
-   // void activeFunctionChanged(const QString& text);
-   // void colorFunctionChanged(QColor newColor);
+    // void activeFunctionChanged(const QString& text);
+    // void colorFunctionChanged(QColor newColor);
 };
 
 

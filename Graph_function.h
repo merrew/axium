@@ -55,6 +55,7 @@ private:
     double scaleFont = 1.0;
 
 signals:
+    void functionSelected(FuncGL* f);
     void rightClicked();
 public slots:
               // void setFunction(const QString& funcText);

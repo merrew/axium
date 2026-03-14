@@ -77,7 +77,7 @@ void Grid::updateVertices(QPointF offset)
 
 void Grid::draw(QOpenGLShaderProgram& shader, const QMatrix4x4& model)
 {
-/*
+    /*
     shader.bind();
 
     QMatrix4x4 ortho;
