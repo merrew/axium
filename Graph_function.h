@@ -26,18 +26,14 @@ protected:
     void resizeGL(int w, int h) override;
     void paintGL() override;
 
-
-
-
     ~Graph_function();
 private:
     bool showPoint = false;
-    QPointF pointScreen;
+    QPointF screenPos;
     double pointWorld_x;
     double pointWorld_y;
     QColor pointColor;
     QOpenGLShaderProgram shader;
-    // GLuint VAO, VBO;
 
     Axes axes;
     Grid grid;
@@ -58,8 +54,6 @@ signals:
     void functionSelected(FuncGL* f);
     void rightClicked();
 public slots:
-              // void setFunction(const QString& funcText);
-              // void setColorFunction(const QColor& color);
     void addFunc(const QString& expr, const QColor& color);
     void updateFunc(int index, const QString& expr);
     void updateFuncColor(int index, const QColor& color);

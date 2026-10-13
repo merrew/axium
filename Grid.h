@@ -20,7 +20,7 @@ public:
 
     void init(QPointF offset);
     void updateVertices(QPointF offset);
-    void draw(QOpenGLShaderProgram& shader, const QMatrix4x4& model);
+    void draw();
 
     int count_lines = 10;
 

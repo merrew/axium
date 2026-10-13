@@ -34,11 +34,11 @@ void Grid::updateVertices(QPointF offset)
     QColor c = QColor(white_gray);
     float step = (2.0f * scale) / count_lines;
 
-    // Вычисляем видимые границы с запасом на движение
-    float left   = -offset.x() - scale * 2.0f;  // запас = 2*scale
-    float right  = -offset.x() + scale * 2.0f;
-    float bottom = -offset.y() - scale * 2.0f;
-    float top    = -offset.y() + scale * 2.0f;
+    // Вычисляем видимые границы
+    float left   = -offset.x() - scale;
+    float right  = -offset.x() + scale;
+    float bottom = -offset.y() - scale;
+    float top    = -offset.y() + scale;
 
     // Смещаем линии к ближайшему кратному step
     float x_start = std::floor(left / step) * step;
@@ -75,22 +75,8 @@ void Grid::updateVertices(QPointF offset)
 }
 
 
-void Grid::draw(QOpenGLShaderProgram& shader, const QMatrix4x4& model)
+void Grid::draw()
 {
-    /*
-    shader.bind();
-
-    QMatrix4x4 ortho;
-    ortho.setToIdentity();
-    ortho.ortho(-1, 1, -1, 1, -1, 1);
-
-    shader.setUniformValue("model", QMatrix4x4());
-    shader.setUniformValue("view", QMatrix4x4());
-    shader.setUniformValue("projection", ortho);
-*/
-
-    shader.setUniformValue("model", model);
-
     glBindVertexArray(VAO);
     glDrawArrays(GL_LINES, 0, count_dotes);
     glBindVertexArray(0);
@@ -99,7 +85,6 @@ void Grid::draw(QOpenGLShaderProgram& shader, const QMatrix4x4& model)
 
 Grid::~Grid()
 {
-    // Убедимся, что контекст активен перед удалением OpenGL-объектов
     if (QOpenGLContext::currentContext() != nullptr) {
         if (VAO != 0) {
             glDeleteVertexArrays(1, &VAO);

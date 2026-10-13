@@ -11,16 +11,14 @@ void Panel::resizeEvent(QResizeEvent* event)
 Panel::Panel(QString text, QMainWindow *parent, Qt::DockWidgetArea area)
     : QDockWidget(text, parent)
 {
-    // Поведение панели - закрытие и перемещение
-    setFeatures(QDockWidget::DockWidgetClosable |
-                QDockWidget::DockWidgetMovable);
+    setFeatures(QDockWidget::NoDockWidgetFeatures);
 
     setAllowedAreas(area); // разрешённое положение панели
     this->setMinimumWidth(300);
 
     // Заголовок
     QWidget* titleBar = new QWidget(this);
-    titleBar->setStyleSheet("background-color: " + gray + "; border: none; font-weight: bold");
+    titleBar->setStyleSheet("background-color: " + gray2 + "; border-radius: 6px; border: none; font-weight: bold");
     setTitleBarWidget(titleBar);
 
     // Компоновщик заголовка
@@ -28,7 +26,7 @@ Panel::Panel(QString text, QMainWindow *parent, Qt::DockWidgetArea area)
     title_layout->setContentsMargins(0, 30, 0, 30);
 
     QLabel* titleLabel = new QLabel(text, titleBar);
-    titleLabel->setStyleSheet("color: white; font: 18pt;");
+    titleLabel->setStyleSheet("color:" + white + "; font: 18pt;");
     title_layout->addWidget(titleLabel, 1, Qt::AlignCenter);
 
     // Контейнер элементов внутри скролла

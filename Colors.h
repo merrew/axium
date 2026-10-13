@@ -6,6 +6,7 @@
 extern QString white;
 
 extern QString gray;
+extern QString gray2;
 extern QString lightgray;
 extern QString light_lightgray;
 extern QString white_gray;

@@ -28,8 +28,10 @@ Functions::Functions(QWidget* parent, int ind): QWidget(parent), id(ind)
         );
     // Метка
     // !
+
     funcLabel = new JKQTMathTextLabel(funcLabelContainer);
-    funcLabel->setMath(R"($\mathrm{\color{white} $)");
+    funcLabel->setMath("$\\mathrm{\\color{" + white + "}{f(x)}}$");
+
     //funcLabel->setFont(QFont(MathFont));
     // !
     //QLabel* funcLabel = new QLabel("f(x) = sin(x)", funcLabelContainer);
@@ -52,12 +54,12 @@ Functions::Functions(QWidget* parent, int ind): QWidget(parent), id(ind)
 
             QColorDialog {
                 background-color: )" + gray + R"(;
-                color: white;
+                color: )" + white + R"(;
                 font-family: )" + GlobalFont.front() + R"(;
             }
             QPushButton {
                 background-color: )" + blue + R"(;
-                color: white;
+                color: )" + white + R"(;
                 border-radius: 8px;
                 font-family: )" + GlobalFont.front() + R"(;
                 padding: 6px 6px;
@@ -67,6 +69,17 @@ Functions::Functions(QWidget* parent, int ind): QWidget(parent), id(ind)
             }
             QLabel {
                 font-family: )" + GlobalFont.front() + R"(;
+                color: )" + white + R"(;
+                background-color: )" + lightgray + R"(;
+            }
+            QSpinBox {
+                font-family: )" + GlobalFont.front() + R"(;
+                color: )" + white + R"(;
+                background-color: )" + lightgray + R"(;
+            }
+            QLineEdit {
+                font-family: )" + GlobalFont.front() + R"(;
+                color: )" + white + R"(;
                 background-color: )" + lightgray + R"(;
             }
         )"));
@@ -77,6 +90,7 @@ Functions::Functions(QWidget* parent, int ind): QWidget(parent), id(ind)
                                  colorBtn->setStyleSheet(
                                      "QPushButton {"
                                      "border-radius: 7px;"
+                                     "color: " + white + ";"
                                      "background-color: " + lightgray + ";"
                                                    "border: 2px solid " + newColor.name() + ";"
                                                          "}"
@@ -114,7 +128,7 @@ Functions::Functions(QWidget* parent, int ind): QWidget(parent), id(ind)
     // Ввод функции
     inputField = new QLineEdit(content);
     inputField->setPlaceholderText("Ввод Latex-функции");
-    inputField->setStyleSheet("font: 18px; font-family: " + MathFont + "; border: 2px solid " +  light_lightgray + ";");
+    inputField->setStyleSheet("color: " + white + "; font: 18px; font-family: " + MathFont + "; border: 2px solid " +  light_lightgray + ";");
     int height = 35;
     //funcLabel->setFixedHeight(height);
     inputField->setFixedHeight(height);
@@ -134,7 +148,7 @@ Functions::Functions(QWidget* parent, int ind): QWidget(parent), id(ind)
         }
         // Если пользователь сам ее сбросил
         else if (inputField->hasFocus()) {
-            // выделение снято вручную, но поле в фокусе → сбрасываем
+            // выделение снято вручную, но поле в фокусе - сбрасываем
             select = false;
             selectionStartPos = -1;
             selectionLength = 0;
@@ -143,9 +157,10 @@ Functions::Functions(QWidget* parent, int ind): QWidget(parent), id(ind)
     });
     // !
     QObject::connect(inputField, &QLineEdit::textChanged, funcLabel, [this](const QString& text) {
-        funcLabel->setMath("$\\mathrm{\\color{white} " + text + "}$");
+        funcLabel->setMath("$\\mathrm{\\color{" + white + "}{" + text + "}}$");
+       // funcLabel->setMath("$\\mathrm{\\color{white} " + text + "}$");
         if (inputField->text() == "")
-            funcLabel->setMath("$\\mathrm{\\color{white} $");
+            funcLabel->setMath("$\\mathrm{\\color{" + white + "}{f(x)}}$");
     });
 
     // отрисовка функции

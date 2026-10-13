@@ -13,7 +13,7 @@ void Graph_function::addFunc(const QString& expr, const QColor& color)
     qDebug() << "func.f_str = " << f->f_str;
     f->f.printLex();
     f->f.printAST();
-
+    f->h = (f->x_end - f->x_start) / width();
     f->color = color;
     f->init(offset);
 
@@ -118,18 +118,21 @@ void Graph_function::paintGL()
         -scale, scale,
         -1, 1
         );
+    QMatrix4x4 model;
+    model.setToIdentity();
+
     // Передаём матрицы в шейдер
     shader.setUniformValue("view", view);
+    shader.setUniformValue("model", model);
     shader.setUniformValue("projection", projection);
 
-    QMatrix4x4 model;
 
     // Оси координат
-    axes.draw(shader, model);
-    grid.draw(shader, model);
+    grid.draw();
+    axes.draw();
     for (auto& func : funcs)
     {
-        func->draw(shader);
+        func->draw();
     }
 
     shader.release();
@@ -137,16 +140,16 @@ void Graph_function::paintGL()
     // Отрисовка подписей координат
     QPainter painter(this);
     painter.setRenderHint(QPainter::TextAntialiasing);
-    painter.setPen(Qt::white);
+    painter.setPen(white);
     int fontSize = qMin(12.0, 12 * scaleFont);
     painter.setFont(QFont(MathFont, fontSize));
 
     float step = (2.0f * scale) / grid.count_lines;
 
-    float left   = -offset.x() - scale * 2.0f;
-    float right  = -offset.x() + scale * 2.0f;
-    float bottom = -offset.y() - scale * 2.0f;
-    float top    = -offset.y() + scale * 2.0f;
+    float left   = -offset.x() - scale * 1.0f;
+    float right  = -offset.x() + scale * 1.0f;
+    float bottom = -offset.y() - scale * 1.0f;
+    float top    = -offset.y() + scale * 1.0f;
 
     float x_min = std::floor(left / step) * step;
     float x_max   = std::ceil(right / step) * step;
@@ -185,13 +188,13 @@ void Graph_function::paintGL()
         painter.setPen(Qt::NoPen);
         painter.setBrush(pointColor);
         double radius = 5.0;
-        painter.drawEllipse(pointScreen, radius, radius);
+        painter.drawEllipse(screenPos, radius, radius);
 
-        painter.setPen(Qt::white);
+        painter.setPen(white);
         int fontSize = qMin(12.0, 12 * scaleFont);
         painter.setFont(QFont(MathFont, fontSize));
         QString label = "(" + QString::number(pointWorld_x, 'f', 3) + " ; " + QString::number(pointWorld_y, 'f', 3) + ")";
-        painter.drawText(pointScreen + QPointF(radius+2, -radius-2), label);
+        painter.drawText(screenPos + QPointF(radius+2, -radius-2), label);
     }
     painter.end();
 
@@ -248,7 +251,6 @@ bool Graph_function::findPoint(const QPointF& mousePos, QPointF& screenPos, doub
                 screenPos.setY((0.5 - (cursorWorldY + offset.y()) / (2*scale)) * height());
             }
             pointColor = func->color;
-
             func->width = 5;
             emit functionSelected(func.get());
             find = true;
@@ -260,7 +262,7 @@ void Graph_function::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
     {
-        showPoint = findPoint(event->position(), pointScreen, pointWorld_x, pointWorld_y);
+        showPoint = findPoint(event->position(), screenPos, pointWorld_x, pointWorld_y);
         update();
     }
     if (event->button() == Qt::RightButton)
@@ -274,7 +276,7 @@ void Graph_function::mouseMoveEvent(QMouseEvent* event)
 {
     if (event->buttons() & Qt::LeftButton)
     {
-        showPoint = findPoint(event->position(), pointScreen, pointWorld_x, pointWorld_y);
+        showPoint = findPoint(event->position(), screenPos, pointWorld_x, pointWorld_y);
         update();
     }
     if (event->buttons() & Qt::MiddleButton)
@@ -284,18 +286,12 @@ void Graph_function::mouseMoveEvent(QMouseEvent* event)
         offset.ry() -= 2.0 * delta.y() / height() * scale;
         lastMousePos = event->pos();
 
-        grid.scale = scale;
         grid.updateVertices(offset);
-
-        axes.scale = scale;
         axes.updateVertices(offset);
 
         for (auto& func : funcs)
         {
-            func->x_start = -scale;
-            func->x_end   =  scale;
             func->h = (func->x_end - func->x_start) / width();
-            //func->scale   =  scale;
             func->updateVertices(offset);
         }
         update();
@@ -313,7 +309,6 @@ void Graph_function::mouseReleaseEvent(QMouseEvent* event)
 
 void Graph_function::wheelEvent(QWheelEvent* event)
 {
-    double factor = event->angleDelta().y() > 0 ? 1.1 : 0.9;
 
     QPointF mousePos = event->position();
 
@@ -322,6 +317,7 @@ void Graph_function::wheelEvent(QWheelEvent* event)
     double worldY =
         (0.5 - mousePos.y() / height()) * 2.0 * scale - offset.y();
 
+    double factor = event->angleDelta().y() > 0 ? 1.1 : 0.9;
     double newScale = scale / factor;
     newScale = std::clamp(newScale, 0.05, scale_max);
 

@@ -1,6 +1,7 @@
 #include "FuncGL.h"
 #include <thread>
-
+#include <cmath>
+#include <chrono>
 FuncGL::FuncGL(QWidget* parent, int ind, std::string func, double x_start, double x_end, double h, QPointF offset):
     id(ind),
     x_start(x_start), x_end(x_end),
@@ -36,6 +37,7 @@ void FuncGL::init(QPointF offset)
 }
 void FuncGL::updateVertices(QPointF offset)
 {
+    auto start_time = std::chrono::high_resolution_clock::now();
     vertices.clear();
     draw_segments.clear();
 
@@ -48,115 +50,17 @@ void FuncGL::updateVertices(QPointF offset)
     if (f.type == FuncType::Forward)
     {
         x0 = x_start - offset.x();
-        x1 = x_end + std::abs(offset.x());
+        x1 = x_end - offset.x();
     }
     else
     {
         x0 = x_start - offset.y();
-        x1 = x_end + std::abs(offset.y());
+        x1 = x_end - offset.y();
     }
 
-    /*
-    if (f.correct)
-    {
-        auto ex = findExtrema(x0, x1,
-          [this](double x, double& y, double h) {
-            return this->eval(x, y, h);
-        },
-          [this](double x, double& d, double h) {
-              return this->d_dx(x, d, h);
-          });
-        auto nl = findNulls(x0, x1,
-            [this](double x, double& y, double h) {
-                return this->eval(x, y, h);
-            },
-            [this](double x, double& d, double h) {
-                return this->d_dx(x, d, h);
-            });
-        auto bp = findBreakPoints(x0, x1,
-              [this](double x, double& y, double h) {
-                  return this->eval(x, y, h);
-              },
-              [this](double x, double& d, double h) {
-                  return this->d_dx(x, d, h);
-              });
-        auto in_mon = findIntervalsMono(x0, x1,
-                [this](double x, double& y, double h) {
-                    return this->eval(x, y, h);
-                },
-                [this](double x, double& d, double h) {
-                    return this->d_dx(x, d, h);
-                });
-        auto D = find_D(x0, x1,
-                [this](double x, double& y, double h) {
-                    return this->eval(x, y, h);
-                },
-                [this](double x, double& d, double h) {
-                    return this->d_dx(x, d, h);
-                });
-        auto E = find_E(x0, x1,
-                [this](double x, double& y, double h) {
-                    return this->eval(x, y, h);
-                },
-                [this](double x, double& d, double h) {
-                    return this->d_dx(x, d, h);
-                });
-        auto ex2 = findExtrema(x0, x1,
-              [this](double x, double& y, double h) {
-                  return this->d_dx(x, y, h);
-              },
-              [this](double x, double& d, double h) {
-                  return this->d2_dx2(x, d, h);
-              });
-        auto bp2 = findBreakPoints(x0, x1,
-              [this](double x, double& y, double h) {
-                  return this->d_dx(x, y, h);
-              },
-              [this](double x, double& d, double h) {
-                  return this->d2_dx2(x, d, h);
-              });
-        auto crit2_intervals = findIntervalsMono(x0, x1,
-             [this](double x, double& y, double h) {
-                 return this->d_dx(x, y, h);
-             },
-             [this](double x, double& d, double h) {
-                 return this->d2_dx2(x, d, h);
-             });
-
-
-        for (auto& e : ex)
-                qDebug() << (e.is_max ? "Максимум: " : "Минимум: ") << "(" << e.x << ";" << e.y << ")\n";
-        for (auto& e : nl)
-            qDebug() << "Пересечение с осью: " << "(" << e.rx() << ";" << e.ry() << ")\n";
-        for (auto& e : bp)
-            qDebug() << (e.type == BreakPointType::FirstType ? "Разрыв 1 рода: x = " : "Разрыв 2 рода: x = ") << "(" << e.x << ")\n";
-        for (auto& e : in_mon)
-            qDebug() << (e.type == IntervalMonoType::Increasing ? "Возрастание: (" : "Убывание: (") << e.start << "; " << e.end << ")\n";
-        qDebug() << "Область определения: ";
-        for (auto& e : D)
-            qDebug() << "(" << e.first << ";" << e.second << ") U ";
-        qDebug() << "Область значения: ";
-        for (auto& e : E)
-            qDebug() << "(" << e.first << ";" << e.second << ") U ";
-        for (auto& e : ex2)
-            qDebug() << (e.is_max ? "Восходящая точка перегиба: " : "Нисходящая точка перегиба: ") << "(" << e.x << ";" << e.y << ")\n";
-        for (auto& e : crit2_intervals)
-            qDebug() << (e.type == IntervalMonoType::Increasing ? "Вогнутость: (" : "Выпуклость: (") << e.start << "; " << e.end << ")\n";
-
-        qDebug() << "Интеграл на [" << x0 << ";" << x1 << "]" << "методом прямоугольников = " << rectangle_integrate(x0, x1);
-        qDebug() << "Интеграл на [" << x0 << ";" << x1 << "]" << "методом трапеций = " << trapezoid_integrate(x0, x1);
-        qDebug() << "Интеграл на [" << x0 << ";" << x1 << "]" << "методом Симпсона = " << simpson_integrate(x0, x1);
-        qDebug() << "Интеграл на [" << x0 << ";" << x1 << "]" << "методом Гаусса = " << gauss_composite_integrate(x0, x1);
-        qDebug() << "Длина дуги на [" << x0 << ";" << x1 << "]" << " = " << curve_length(x0, x1);
-
-        qDebug() << "\n";
-
-    }
-
-*/
     const float h_min = 0.001f;
     const float h_max = 0.01f;
-    const float slope_threshold = 0.1f;
+    const float slope_threshold = 0.1;
 
     auto worker = [&](int tid) {
         std::vector<V>& local_vertices = thread_vertices[tid];
@@ -192,16 +96,69 @@ void FuncGL::updateVertices(QPointF offset)
 
             if (!first)
             {
-                float slope = std::fabs((y - pred_y) / h_current);
-                if (slope > slope_threshold) h_current = std::max(h_min, h_current * 0.25f);
-                else if (slope < slope_threshold * 0.5f) h_current = std::min(h_max, h_current * 2.0f);
+                float y_left = pred_y;
 
-                if (std::fabs(y - pred_y) > 1e3)
+                float x_right = x + h_current;
+                std::optional<double> val_right;
+
+                if (f.type == FuncType::Forward)
+                    val_right = f.eval({{"x", x_right}});
+                else
+                    val_right = f.eval({{"y", x_right}});
+
+                if (val_right.has_value())
                 {
-                    if (count > 0) local_segments.emplace_back(offset_l, count);
+                    float y_right = val_right.value();
+
+                    float slope = std::fabs((y_right - y_left) / (2.0f * h_current));
+
+                    if (slope > slope_threshold)
+                        h_current = std::max(h_min, h_current * 0.5f);
+                    else if (slope <= slope_threshold * 0.5f)
+                        h_current = std::min(h_max, h_current * 1.5f);
+                }
+
+                bool is_break = false;
+
+                double y0, y2;
+                float eps = 1e3;
+
+                if (!eval(x - h_current, y0, h) || !eval(x + h_current, y2, h))
+                {
+                    is_break = true;
+                }
+                else if (!std::isfinite(y0) || !std::isfinite(y2))
+                {
+                    is_break = true;
+                }
+                else if (std::fabs(y2 - y0) > eps)
+                {
+                    double y0_2, y2_2;
+
+                    bool ok1 = eval(x - h_current / 2.0, y0_2, h);
+                    bool ok2 = eval(x + h_current / 2.0, y2_2, h);
+
+                    if (!ok1 || !ok2 || !std::isfinite(y0_2) || !std::isfinite(y2_2))
+                    {
+                        is_break = true;
+                    }
+                    else if (std::fabs(y0_2 - y0) > eps || std::fabs(y2_2 - y2) > eps)
+                    {
+                        is_break = true;
+                    }
+                }
+
+                if (is_break)
+                {
+                    if (count > 0)
+                        local_segments.emplace_back(offset_l, count);
+
                     offset_l = local_vertices.size();
                     count = 0;
+                    first = true;
+                    continue;
                 }
+
             }
 
             if (f.type == FuncType::Forward)
@@ -235,6 +192,10 @@ void FuncGL::updateVertices(QPointF offset)
         vertex_offset += thread_vertices[t].size();
     }
 
+    auto end_time = std::chrono::high_resolution_clock::now();
+    double ms = std::chrono::duration<double, std::milli>(end_time - start_time).count();
+    qDebug() << "count dotes:" << vertices.size() << "\n";
+    qDebug() << "updateVertices time:" << ms << "ms\n";
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(V) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
@@ -242,7 +203,7 @@ void FuncGL::updateVertices(QPointF offset)
 }
 
 
-void FuncGL::draw(QOpenGLShaderProgram& shader)
+void FuncGL::draw()
 {
     glLineWidth(width);
     glBindVertexArray(VAO);
@@ -250,15 +211,10 @@ void FuncGL::draw(QOpenGLShaderProgram& shader)
 
     for (auto& draw_segment : draw_segments)
     {
-        // qDebug() << draw_segment.count << " " << draw_segment.offset << "\n";
         if (draw_segment.count < 2) continue;
         if (draw_segment.offset >= vertices.size()) draw_segment.offset = vertices.size() - 1;
         glDrawArrays(GL_LINE_STRIP, draw_segment.offset, draw_segment.count);
     }
-
-
-    // glDrawArrays(GL_LINE_STRIP, 0, vertices.size());
-
     glBindVertexArray(0);
     glLineWidth(1.0f);
 
@@ -293,6 +249,7 @@ bool FuncGL::d2_dx2 (double x, double& d, double h)
     d = (y0 - 2*y1 + y2) / h*h;
     return !std::isinf(d);
 };
+
 
 std::vector<Extremum> FuncGL::findExtrema(
     double a,
@@ -329,10 +286,9 @@ std::vector<Extremum> FuncGL::findExtrema(
         return x1;
     };
 
-
     while (x + h_l <= b)
     {
-        double y0, y1, y2;
+        double y0, y1, y2, d0, d1;
 
         if (!eval(x - h_l, y0, h) || !eval(x, y1, h) || !eval(x + h_l, y2, h))
         {
@@ -340,8 +296,9 @@ std::vector<Extremum> FuncGL::findExtrema(
             continue;
         }
 
-        // максимум
-        if (y0 < y1 && y1 > y2)
+        if (d_dx(x - h_l, d0, h_l) &&
+            d_dx(x + h_l, d1, h_l) &&
+            d0 * d1 < 0)
         {
             // уточнение параболой
             double xe = x + h_l * (y0 - y2) / (2*(y0 - 2*y1 + y2));
@@ -349,40 +306,55 @@ std::vector<Extremum> FuncGL::findExtrema(
             // уточнение методом секущих
             xe =  secant_method(x - h_l, x + h_l);
 
+            const double eps = 1e-3;
+
+            auto isNear = [&](double x)
+            {
+                for (const auto& e : extremum)
+                    if (std::fabs(e.x - x) < eps)
+                        return true;
+                return false;
+            };
+
             auto break_points = findBreakPoints(xe-1e-2, xe+1e-2, eval, d_dx);
             if (break_points.empty())
             {
                 double ye;
                 if (eval(xe, ye, h))
                 {
-                    if (f.type == FuncType::Forward)
-                        extremum.push_back({xe, ye, true});
-                    else
-                        extremum.push_back({ye, xe, true});
+                    bool type = (d0 > 0 && d1 - 0);
+                    if (!isNear(xe))
+                    {
+                        if (f.type == FuncType::Forward)
+                            extremum.push_back({xe, ye, type});
+                        else
+                            extremum.push_back({ye, xe, type});
+                    }
                 }
             }
-        }
-
-        // минимум
-        if (y0 > y1 && y1 < y2)
-        {
-            // уточнение параболой
-            double xe = x + h_l * (y0 - y2) / (2*(y0 - 2*y1 + y2));
-
-            // уточнение методом секущих
-            xe =  secant_method(x - h_l, x + h_l);
-
-            auto break_points = findBreakPoints(xe-1e-2, xe+1e-2, eval, d_dx);
-            if (break_points.empty())
+            else
             {
-                double ye;
 
-                if (eval(xe, ye, h))
+                for (auto [xb] : break_points)
                 {
-                    if (f.type == FuncType::Forward)
-                        extremum.push_back({xe, ye, false});
-                    else
-                        extremum.push_back({ye, xe, false});
+                    double y, yl, yr;
+
+                    bool ok = eval(xb, y, h);
+                    bool okL = eval(xb - h_l, yl, h);
+                    bool okR = eval(xb + h_l, yr, h);
+
+                    if (!okL || !okR || ok) continue;
+
+                    if (yl < y && y > yr && !isNear(xe))
+                    {
+                        // максимум
+                        extremum.push_back({xb, yl, true});
+                    }
+                    else if (yl > y && y < yr && !isNear(xe))
+                    {
+                        // минимум
+                        extremum.push_back({xb, yl, false});
+                    }
                 }
             }
         }
@@ -399,6 +371,7 @@ std::vector<Extremum> FuncGL::findExtrema(
     return extremum;
 }
 
+
 std::vector<QPointF> FuncGL::findNulls(
     double a,
     double b,
@@ -406,60 +379,125 @@ std::vector<QPointF> FuncGL::findNulls(
     std::function<bool(double, double&, double)> d_dx
     )
 {
-    const float h_min = (b - a) / 10000;
-    const float h_max = (b - a) / 100;
+    const double h_min = (b - a) / 10000.0;
+    const double h_max = (b - a) / 100.0;
     double h_l = h_max;
 
     std::vector<QPointF> nulls;
 
+    auto bisection_method = [&](double x0, double x1)
+    {
+        double y0, y1;
+        if (!eval(x0, y0, h) || !eval(x1, y1, h))
+            return std::pair<double, double>(x0, x1);
+
+        for (int i = 0; i < 15; i++)
+        {
+            double xm = 0.5 * (x0 + x1);
+            double ym;
+
+            if (!eval(xm, ym, h) || !std::isfinite(ym))
+                break;
+
+            if (y0 * ym <= 0)
+            {
+                x1 = xm;
+                y1 = ym;
+            }
+            else
+            {
+                x0 = xm;
+                y0 = ym;
+            }
+        }
+
+        return std::pair<double, double>(x0, x1);
+    };
+
     auto secant_method = [&](double x0, double x1)
     {
         double y0, y1;
-        if (eval(x0, y0, h) || !eval(x1, y1, h)) return x1;
+        if (!eval(x0, y0, h) || !eval(x1, y1, h))
+            return x1;
 
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < 10; i++)
         {
-            if (fabs(y1 - y0) < 1e-8) break;
+            if (!std::isfinite(y0) || !std::isfinite(y1))
+                break;
+
+            if (fabs(y1 - y0) < 1e-12)
+                break;
 
             double x2 = x1 - y1 * (x1 - x0) / (y1 - y0);
-            if (std::fabs(x2 - x1) < h_l / 10)
+
+            if (fabs(x2 - x1) < h_l / 10.0)
                 break;
 
             x0 = x1;
             y0 = y1;
+
             x1 = x2;
+            if (!eval(x1, y1, h))
+                break;
         }
+
         return x1;
     };
 
     double x = a;
     double y_prev;
-    while (!eval(x, y_prev, h))
+
+    while (!eval(x, y_prev, h) || !std::isfinite(y_prev))
     {
         x += h_l;
-        continue;
+        if (x > b) return nulls;
     }
+
+    auto break_points = findBreakPoints(a, b, eval, d_dx);
 
     while (x + h_l <= b)
     {
         double x_next = x + h_l;
-        double y_next;
 
-        if (!eval(x_next, y_next, h))
+        bool near_break = false;
+        for (auto& bp : break_points)
+        {
+            if (fabs(bp.x - x) <= 2 * h_l)
+            {
+                near_break = true;
+                break;
+            }
+        }
+
+        if (near_break)
         {
             x = x_next;
             continue;
         }
 
-        // проверка смены знака
-        if (y_prev * y_next <= 0)
+        double y_next;
+        if (!eval(x_next, y_next, h) || !std::isfinite(y_next))
         {
-            double root = secant_method(x, x_next);
-            auto break_points = findBreakPoints(root-1e-2, root+1e-2, eval, d_dx);
-            if (break_points.empty())
+            x = x_next;
+            continue;
+        }
+
+        if (!std::isfinite(y_prev) || fabs(y_next - y_prev) > 1e3)
+        {
+            x = x_next;
+            y_prev = y_next;
+            continue;
+        }
+
+        if (y_prev * y_next <= 0.0)
+        {
+            auto [xr0, xr1] = bisection_method(x, x_next);
+            double root = secant_method(xr0, xr1);
+
+            double yroot;
+            if (eval(root, yroot, h) && std::isfinite(yroot))
             {
-                double yroot;
-                if (eval(root, yroot, h))
+                if (fabs(yroot) < 1e-2)
                 {
                     if (f.type == FuncType::Forward)
                         nulls.push_back({root, 0});
@@ -470,10 +508,11 @@ std::vector<QPointF> FuncGL::findNulls(
         }
 
         double slope = fabs((y_next - y_prev) / h_l);
+
         if (slope > 1.0)
-            h_l = std::fmax(h_min, h_l * 0.5);
+            h_l = std::max(h_min, h_l * 0.5);
         else if (slope < 0.2)
-            h_l = std::fmin(h_max, h_l * 2.0);
+            h_l = std::min(h_max, h_l * 2.0);
 
         x = x_next;
         y_prev = y_next;
@@ -481,7 +520,6 @@ std::vector<QPointF> FuncGL::findNulls(
 
     return nulls;
 }
-
 std::vector<BreakPoint> FuncGL::findBreakPoints(
     double a,
     double b,
@@ -495,14 +533,23 @@ std::vector<BreakPoint> FuncGL::findBreakPoints(
     for (double x = a; x <= b; x += h_l)
     {
 
-        double y0, y2;
-        double eps = 1e4;
+        double y0, y1, y2;
+        double eps = 1e2;
         // точка разрыва 2 рода
         auto find = std::find_if(breakpoints.begin(), breakpoints.end(), [&](BreakPoint el){return fabs(x - el.x) <= 0.5;});
         if (find != breakpoints.end()) continue;
-        if (!eval(x - h_l, y0, h) || !eval(x + h_l, y2, h))
+        if (!eval(x - h_l, y0, h))
         {
-            breakpoints.push_back({x, BreakPointType::SecondType});
+            breakpoints.push_back({x-h_l});
+            continue;
+        }
+        if (!eval(x + h_l, y2, h))
+        {
+            breakpoints.push_back({x+h_l});
+            continue;
+        }        if (!eval(x, y1, h))
+        {
+            breakpoints.push_back({x});
             continue;
         } else if (fabs(y2 - y0) > eps)
         {
@@ -513,17 +560,18 @@ std::vector<BreakPoint> FuncGL::findBreakPoints(
 
             if (fabs(y0_2 - y0) > eps || fabs(y2_2 - y2) > eps)
             {
-                breakpoints.push_back({x, BreakPointType::SecondType});
+                breakpoints.push_back({x});
                 continue;
             }
             else
             {
-                breakpoints.push_back({x, BreakPointType::FirstType});
+               // breakpoints.push_back({x});
                 continue;
             }
         }
+
         else if (std::isnan(y0) && !isnan(y2))
-            breakpoints.push_back({x, BreakPointType::SecondType});
+            breakpoints.push_back({x});
     }
 
     return breakpoints;
@@ -566,7 +614,7 @@ std::vector<IntervalMono> FuncGL::findIntervalsMono(
         double x1 = critical[i + 1];
 
         double d;
-        if (!d_dx(0.5 * (x0 + x1), d, 1e-3))
+        if (!d_dx(0.5 * (x0 + x1+0.5), d, 1e-3))
             continue;
 
         if (d > 0)
@@ -586,8 +634,8 @@ std::vector<std::pair<double, double>> FuncGL::find_D(
     std::vector<std::pair<double, double>> D;
 
     auto breakpoints = findBreakPoints(a, b, eval, d_dx);
-    breakpoints.insert(breakpoints.begin(), {a, BreakPointType::FirstType});
-    breakpoints.push_back({b, BreakPointType::FirstType});
+    breakpoints.insert(breakpoints.begin(), {a});
+    breakpoints.push_back({b});
 
     auto it = breakpoints.begin();
     auto next = std::next(it);
@@ -597,8 +645,10 @@ std::vector<std::pair<double, double>> FuncGL::find_D(
         double x0 = it->x;
         double x1 = next->x;
 
-        double y_h2;
-        if (eval(x0 + (x1 - x0), y_h2, h) && !std::isnan(y_h2))
+        double y_m;
+        double xm = 0.5 * (x0 + x1);
+
+        if (eval(xm, y_m, h) && !std::isnan(y_m))
             D.emplace_back(x0, x1);
 
         ++it;
@@ -616,8 +666,8 @@ std::vector<std::pair<double, double>> FuncGL::find_E(
     auto extremum = findExtrema(a, b, eval, d_dx);
 
     auto breakpoints = findBreakPoints(a, b, eval, d_dx);
-    breakpoints.insert(breakpoints.begin(), {a, BreakPointType::FirstType});
-    breakpoints.push_back({b, BreakPointType::FirstType});
+    breakpoints.insert(breakpoints.begin(), {a});
+    breakpoints.push_back({b});
 
     std::vector<std::pair<double, double>> y_ranges;
 
@@ -629,9 +679,9 @@ std::vector<std::pair<double, double>> FuncGL::find_E(
         double x0 = it->x;
         double x1 = next->x;
 
-
+        double xm = 0.5 * (x0 + x1);
         double y_h2;
-        if (!eval(x0 + (x1 - x0), y_h2, h) || std::isnan(y_h2))
+        if (!eval(xm, y_h2, h) || std::isnan(y_h2))
         {
             ++it;
             ++next;
@@ -669,7 +719,7 @@ std::vector<std::pair<double, double>> FuncGL::find_E(
             eval(x1 - 1e-3, y_minus_h, h);
             eval(x1 - 1e-3 - 1e-2, y_minus_h1, h);
         }
-        if (it->type == BreakPointType::SecondType && std::fabs(y_plus_h - y_plus_h1) > (x0 + 1e-3 - (x0 + 1e-3 + 1e-2)))
+        if (std::fabs(y_plus_h - y_plus_h1) > 1e-2)
         {
             if (y_plus_h > 0)
                 y.emplace_back(std::numeric_limits<double>::infinity());
@@ -677,7 +727,7 @@ std::vector<std::pair<double, double>> FuncGL::find_E(
                 y.emplace_back(-std::numeric_limits<double>::infinity());
             y.emplace_back(y_x1);
         }
-        else if (next->type == BreakPointType::SecondType && std::fabs(y_minus_h - y_minus_h1) > (x1 - 1e-3 - (x1 - 1e-3 - 1e-2)))
+        else if (std::fabs(y_minus_h - y_minus_h1) > 1e-2)
         {
 
             if (y_minus_h > 0)
@@ -707,8 +757,6 @@ std::vector<std::pair<double, double>> FuncGL::find_E(
               {
                   return a.first < b.first;
               });
-    for(auto& el : y_ranges)
-        qDebug() << "Промежутки: (" << el.first << ";" << el.second << ")";
     std::vector<std::pair<double,double>> merged;
     auto current = y_ranges[0];
 
@@ -776,29 +824,29 @@ double FuncGL::simpson_integrate(double a, double b)
 
     double h = (b - a) / n;
 
-    double x = a;
-    double x1 = b;
-    double y, y1;
+    double x_start = a, y_start;
+    while (!eval(x_start, y_start) || std::isnan(y_start))
+        x_start += h / 10.0;
 
-    while (!eval(x, y) || std::isnan(y))
-    {
-        x += h / 10.0;
-    }
-    while (!eval(x1, y1) || std::isnan(y1))
-    {
-        x1 += h / 10.0;
-    }
+    double x_end = b, y_end;
+    while (!eval(x_end, y_end) || std::isnan(y_end))
+        x_end -= h / 10.0;
 
-    double I = y + y1;
-    for (int i = 1; i < n - 1; ++i)
+    double sum = y_start + y_end;
+
+    // i от 1 до n-1
+    for (int i = 1; i < n; ++i)
     {
         double x = a + i * h;
         double y;
         if (!eval(x, y) || std::isnan(y))
             continue;
-        I += (i % 2 == 0 ? 2 : 4) * y;
+
+        // Коэффициент: 4 для нечетных i, 2 для четных
+        sum += (i % 2 == 0 ? 2 : 4) * y;
     }
-    return I * h / 3.0;
+
+    return sum * h / 3.0;
 }
 
 double FuncGL::gauss_composite_integrate(double a, double b)
@@ -859,29 +907,29 @@ double FuncGL::curve_length(double a, double b)
     double h = (b-a)/N;
 
     double L = 0.0;
+    const int n = 5;
+    double x[n] = {1.0/3.0*sqrt(5.0-2*sqrt(10.0/7)), 0.0, -1.0/3.0*sqrt(5.0-2*sqrt(10.0/7)), 1.0/3.0*sqrt(5.0+2*sqrt(10.0/7)), -1.0/3.0*sqrt(5.0+2*sqrt(10.0/7))};
+    double w[n] = {(322.0+13*sqrt(70))/900.0, 128.0/225.0, (322.0+13*sqrt(70))/900.0, (322.0-13*sqrt(70))/900.0, (322.0-13*sqrt(70))/900.0};
+
     for (int i = 0; i < N; ++i)
     {
         double left  = a + i * h;
         double right = left + h;
-
-        // Интегрирование Гауссом
-        double I = 0.0;
-        const int n = 5;
-        double x[n] = {1.0/3.0*sqrt(5.0-2*sqrt(10.0/7)), 0.0, -1.0/3.0*sqrt(5.0-2*sqrt(10.0/7)), 1.0/3.0*sqrt(5.0+2*sqrt(10.0/7)), -1.0/3.0*sqrt(5.0+2*sqrt(10.0/7))};
-        double w[n] = {(322.0+13*sqrt(70))/900.0, 128.0/225.0, (322.0+13*sqrt(70))/900.0, (322.0-13*sqrt(70))/900.0, (322.0-13*sqrt(70))/900.0};
         double c1 = (right - left)/2.0;
         double c2 = (right + left)/2.0;
+        // Интегрирование Гауссом
+        double I = 0.0;
         for (int j = 0; j < n; ++j)
         {
             double xj = c1 * x[j] + c2;
             double y = arc(xj);
             if (std::isnan(y))
-            { continue; }
+            { return std::numeric_limits<double>::quiet_NaN(); }
             I += w[j] * y;
         }
         I *= c1;
 
-        if (std::isnan(I))
+        if (std::isnan(I) || std::isinf(I))
             return std::numeric_limits<double>::quiet_NaN();
 
         L += I;

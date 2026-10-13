@@ -29,52 +29,33 @@ void Axes::init(QPointF offset)
 
 void Axes::updateVertices(QPointF offset)
 {
-    float left   = -scale - std::abs(offset.x());
-    float right  =  scale + std::abs(offset.x());
-    float bottom = -scale - std::abs(offset.y());
-    float top    =  scale + std::abs(offset.y());
+    float left   = -scale - (offset.x());
+    float right  =  scale - (offset.x());
+    float bottom = -scale - (offset.y());
+    float top    =  scale - (offset.y());
 
     // Оси
     QColor c = QColor(white);
 
     vertices.clear();
 
-    vertices.push_back(left);
-    vertices.push_back(0.0f);
-    vertices.push_back(0.0f);
-    vertices.push_back(c.redF());
-    vertices.push_back(c.greenF());
-    vertices.push_back(c.blueF());
-
-    vertices.push_back(right);
-    vertices.push_back(0.0f);
-    vertices.push_back(0.0f);
-    vertices.push_back(c.redF());
-    vertices.push_back(c.greenF());
-    vertices.push_back(c.blueF());
-
-    vertices.push_back(0.0f);
-    vertices.push_back(bottom);
-    vertices.push_back(0.0f);
-    vertices.push_back(c.redF());
-    vertices.push_back(c.greenF());
-    vertices.push_back(c.blueF());
-
-    vertices.push_back(0.0f);
-    vertices.push_back(top);
-    vertices.push_back(0.0f);
-    vertices.push_back(c.redF());
-    vertices.push_back(c.greenF());
-    vertices.push_back(c.blueF());
+    vertices.insert(vertices.end(), {
+        left, 0.0f, 0.0f, c.redF(), c.greenF(), c.blueF(),
+        right, 0.0f,    0.0f, c.redF(), c.greenF(), c.blueF()
+    });
+    vertices.insert(vertices.end(), {
+        0.0f, bottom, 0.0f, c.redF(), c.greenF(), c.blueF(),
+        0.0f, top,    0.0f, c.redF(), c.greenF(), c.blueF()
+    });
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), vertices.data(), GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Axes::draw(QOpenGLShaderProgram& shader, const QMatrix4x4& model)
+void Axes::draw()
 {
-    shader.setUniformValue("model", model);
+    //shader.setUniformValue("model", model);
     glLineWidth(3.0f);
     glBindVertexArray(VAO);
     glDrawArrays(GL_LINES, 0, 4);

@@ -12,6 +12,8 @@
 #include <QTextEdit>
 #include <QLineEdit>
 #include <QMessageBox>
+#include <QRadioButton>
+#include <QButtonGroup>
 class AnalysisFunction
 {
 public:
@@ -63,6 +65,13 @@ public:
     FuncGL* activeFunc = nullptr;
     QLineEdit* aEdit;
     QLineEdit* bEdit;
+
+    QButtonGroup* integralGroup;
+    QRadioButton* rectBtn;
+    QRadioButton* trapBtn;
+    QRadioButton* simpBtn;
+    QRadioButton* gaussBtn;
+
 private slots:
     void calculate();
 };

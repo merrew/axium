@@ -18,18 +18,18 @@ AnalysisPanel::AnalysisPanel(QMainWindow* window) : Panel("АНАЛИЗ", window
     aEdit = new QLineEdit(intervalWidget);
     aEdit->setPlaceholderText("a");
     aEdit->setAlignment(Qt::AlignCenter);
-    aEdit->setStyleSheet("background-color: " + gray + "; font: 16px;");
+    aEdit->setStyleSheet("background-color: " + gray + "; color: " + white + "; font: 16px;");
 
     QLabel* separator = new QLabel(";", intervalWidget);
-    intervalLabel->setStyleSheet("color: " + white + "; font: 16px;");
+    separator->setStyleSheet("color: " + white + "; font: 16px;");
 
     bEdit = new QLineEdit(intervalWidget);
     bEdit->setPlaceholderText("b");
     bEdit->setAlignment(Qt::AlignCenter);
-    bEdit->setStyleSheet("background-color: " + gray + "; font: 16px;");
+    bEdit->setStyleSheet("background-color: " + gray + "; color: " + white + "; font: 16px;");
 
     QLabel* end = new QLabel("]", intervalWidget);
-    intervalLabel->setStyleSheet("color: " + white + "; font: 16px;");
+    end->setStyleSheet("color: " + white + "; font: 16px;");
 
     intervalLayout->addWidget(intervalLabel);
     intervalLayout->addWidget(aEdit);
@@ -47,14 +47,13 @@ AnalysisPanel::AnalysisPanel(QMainWindow* window) : Panel("АНАЛИЗ", window
     calcButton->setStyleSheet(
         "QPushButton {"
         "background-color: " + blue + ";"
-                 "color: white;"
+                 "color: " + white + ";"
                  "font: 14px; font-family: " + GlobalFont + ";"
                        "border-radius: 4px;"
                        "}"
                        "QPushButton:hover {"
                        "background-color: " + blue_hover + ";"
-                       "}"
-        );
+                       "}" );
 
     connect(calcButton, &QPushButton::clicked,
             this, &AnalysisPanel::calculate);
@@ -89,11 +88,37 @@ AnalysisPanel::AnalysisPanel(QMainWindow* window) : Panel("АНАЛИЗ", window
         analysis_widgets[i] = new QWidget(sectionWidget);
         analysis_widgets[i]->setStyleSheet(
             "QWidget {"
-            "  border: 1px solid " + light_lightgray + ";"
+            "border: 1px solid " + light_lightgray + ";"
                                 "  border-radius: 6px;"
-                                "}"
+            "color: " + white + ";"
+            "font: 14px; font-family: " + GlobalFont + ";"
+            "}"
+           "QRadioButton {"
+           "border: 1px solid " + lightgray + ";"
+           "}"
             );
         analysis_layouts[i] = new QVBoxLayout(analysis_widgets[i]);
+        if (i==2)
+        {
+            rectBtn = new QRadioButton("Прямоугольники");
+            trapBtn = new QRadioButton("Трапеции");
+            simpBtn = new QRadioButton("Симпсон");
+            gaussBtn = new QRadioButton("Гаусс");
+
+            rectBtn->setChecked(true);
+
+            analysis_layouts[2]->addWidget(rectBtn);
+            analysis_layouts[2]->addWidget(trapBtn);
+            analysis_layouts[2]->addWidget(simpBtn);
+            analysis_layouts[2]->addWidget(gaussBtn);
+
+            // Группа
+            integralGroup = new QButtonGroup(this);
+            integralGroup->addButton(rectBtn, 0);
+            integralGroup->addButton(trapBtn, 1);
+            integralGroup->addButton(simpBtn, 2);
+            integralGroup->addButton(gaussBtn, 3);
+        }
         /*
         analysis_scrolls[i]->setWidget(analysis_widgets[i]);
 
@@ -169,24 +194,14 @@ AnalysisPanel::AnalysisPanel(QMainWindow* window) : Panel("АНАЛИЗ", window
         );
 
     analysis_functions.emplace(
-        "Интеграл (прямоугольники)",
-        new AnalysisFunction("Интеграл (прямоугольники): ", analysis_widgets[2], analysis_layouts[2])
+        "Интеграл",
+        new AnalysisFunction("Интеграл: ", analysis_widgets[2], analysis_layouts[2])
         );
 
-    analysis_functions.emplace(
-        "Интеграл (трапеции)",
-        new AnalysisFunction("Интеграл (трапеции): ", analysis_widgets[2], analysis_layouts[2])
-        );
+    // Автопересчёт при смене метода
+    connect(integralGroup, &QButtonGroup::idClicked,
+            this, &AnalysisPanel::calculate);
 
-    analysis_functions.emplace(
-        "Интеграл (Симпсон)",
-        new AnalysisFunction("Интеграл (Симпсон): ", analysis_widgets[2], analysis_layouts[2])
-        );
-
-    analysis_functions.emplace(
-        "Интеграл (Гаусс)",
-        new AnalysisFunction("Интеграл (Гаусс): ", analysis_widgets[2], analysis_layouts[2])
-        );
     analysis_functions.emplace(
         "Длина кривой на отрезке",
         new AnalysisFunction("Длина кривой на отрезке: ", analysis_widgets[2], analysis_layouts[2])
@@ -314,10 +329,22 @@ void AnalysisPanel::calculate()
                                                  return activeFunc->d2_dx2(x, d, h);
                                              });
 
-    double rect = activeFunc->rectangle_integrate(a,b);
-    double trap = activeFunc->trapezoid_integrate(a,b);
-    double simp = activeFunc->simpson_integrate(a,b);
-    double gauss = activeFunc->gauss_composite_integrate(a,b);
+    double integralResult = 0.0;
+    switch(integralGroup->checkedId())
+    {
+    case 0:
+        integralResult = activeFunc->rectangle_integrate(a,b);
+        break;
+    case 1:
+        integralResult = activeFunc->trapezoid_integrate(a,b);
+        break;
+    case 2:
+        integralResult = activeFunc->simpson_integrate(a,b);
+        break;
+    case 3:
+        integralResult = activeFunc->gauss_composite_integrate(a,b);
+        break;
+    }
     double length = activeFunc->curve_length(a,b);
 
     // Вывод
@@ -327,11 +354,11 @@ void AnalysisPanel::calculate()
 
     for (auto& e : extrema)
     {
-        QString pointStr = "(" + QString::number(e.x, 'f', 3) + "; " + QString::number(e.y, 'f', 3) + ")";
+        QString pointStr = "(" + QString::number(e.x) + "; " + QString::number(e.y) + ")";
         if (e.is_max)
-            maximaText += pointStr + "  ";
+            maximaText += pointStr + ";  ";
         else
-            minimaText += pointStr + "  ";
+            minimaText += pointStr + ";  ";
     }
 
     QString finalText;
@@ -346,7 +373,7 @@ void AnalysisPanel::calculate()
     finalText = "";
     for (auto& n : nulls)
     {
-        finalText += "(" + QString::number(n.rx(), 'f', 3) + "; " + QString::number(n.ry(), 'f', 3) + ")";
+        finalText += "(" + QString::number(n.rx()) + "; " + QString::number(n.ry()) + "); ";
     }
     analysis_functions["Точки нулей функции"]->result->setText(finalText);
 
@@ -354,7 +381,7 @@ void AnalysisPanel::calculate()
     finalText = "";
     for (auto& bp : break_points)
     {
-        finalText += QString::number(bp.x, 'f', 3) + "; ";
+        finalText += QString::number(bp.x) + "; ";
     }
     analysis_functions["Точки разрыва"]->result->setText(finalText);
 
@@ -364,11 +391,11 @@ void AnalysisPanel::calculate()
 
     for (auto& im : in_mon)
     {
-        QString pointStr = "(" + QString::number(im.start, 'f', 3) + "; " + QString::number(im.end, 'f', 3) + ")";
+        QString pointStr = "(" + QString::number(im.start) + "; " + QString::number(im.end) + ")";
         if (im.type == IntervalMonoType::Increasing)
-            increasingText += pointStr + "  ";
+            increasingText += pointStr + ";  ";
         else
-            decreasingText += pointStr + "  ";
+            decreasingText += pointStr + ";  ";
     }
 
     finalText = "";
@@ -383,7 +410,7 @@ void AnalysisPanel::calculate()
     finalText = "";
     for (auto& d : D)
     {
-        finalText += "(" + QString::number(d.first, 'f', 3) + "; " + QString::number(d.second, 'f', 3) + ") U ";
+        finalText += "(" + QString::number(d.first) + "; " + QString::number(d.second) + ") U ";
     }
     analysis_functions["Область определения"]->result->setText(finalText);
 
@@ -391,7 +418,7 @@ void AnalysisPanel::calculate()
     finalText = "";
     for (auto& e : E)
     {
-        finalText += "(" + QString::number(e.first, 'f', 3) + "; " + QString::number(e.second, 'f', 3) + ") U ";
+        finalText += "(" + QString::number(e.first) + "; " + QString::number(e.second) + ") U ";
     }
     analysis_functions["Область значения"]->result->setText(finalText);
 
@@ -401,11 +428,11 @@ void AnalysisPanel::calculate()
 
     for (auto& e : ex2)
     {
-        QString pointStr = "(" + QString::number(e.x, 'f', 3) + "; " + QString::number(e.y, 'f', 3) + ")";
+        QString pointStr = "(" + QString::number(e.x) + "; " + QString::number(e.y) + ")";
         if (e.is_max)
-            maximaText += pointStr + "  ";
+            maximaText += pointStr + ";  ";
         else
-            minimaText += pointStr + "  ";
+            minimaText += pointStr + ";  ";
     }
 
     finalText = "";
@@ -421,11 +448,11 @@ void AnalysisPanel::calculate()
 
     for (auto& ci : crit2_intervals)
     {
-        QString pointStr = "(" + QString::number(ci.start, 'f', 3) + "; " + QString::number(ci.end, 'f', 3) + ")";
+        QString pointStr = "(" + QString::number(ci.start) + "; " + QString::number(ci.end) + ")";
         if (ci.type == IntervalMonoType::Increasing)
-            increasingText += pointStr + "  ";
+            increasingText += pointStr + ";  ";
         else
-            decreasingText += pointStr + "  ";
+            decreasingText += pointStr + ";  ";
     }
 
     finalText = "";
@@ -436,18 +463,9 @@ void AnalysisPanel::calculate()
     analysis_functions["Области выпуклости"]->result->setText(finalText);
 
     // Интегрирование
-    analysis_functions["Интеграл (прямоугольники)"]->result
-        ->setText(QString::number(rect));
+    analysis_functions["Интеграл"]->result
+        ->setText(QString::number(integralResult));
 
-    analysis_functions["Интеграл (трапеции)"]->result
-        ->setText(QString::number(trap));
+    analysis_functions["Длина кривой на отрезке"]->result ->setText(QString::number(length));
 
-    analysis_functions["Интеграл (Симпсон)"]->result
-        ->setText(QString::number(simp));
-
-    analysis_functions["Интеграл (Гаусс)"]->result
-        ->setText(QString::number(gauss));
-
-    analysis_functions["Длина кривой на отрезке"]->result
-        ->setText(QString::number(length));
 }

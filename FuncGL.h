@@ -39,7 +39,7 @@ enum class BreakPointType
 struct BreakPoint
 {
     double x;
-    BreakPointType type;
+   // BreakPointType type;
 };
 // Промежутки монотонности
 enum class IntervalMonoType
@@ -75,7 +75,7 @@ public:
 
     //QVector<V> vertices;
     void init(QPointF offset);
-    void draw(QOpenGLShaderProgram& shader);
+    void draw();
 
     // Анализ
     bool eval(double x, double& y, double h=1e-3); // безопасное вычисление функции
@@ -139,8 +139,5 @@ private:
 
 
 };
-
-
-
 #endif // FUNCGL_H
 
